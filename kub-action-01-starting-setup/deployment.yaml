@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+# especifica o tipo de objeto
+kind: Deployment
+metadata:
+  name: second-app-deplyment
+  labels:
+    group: example
+spec:
+  replicas: 1
+  # os pods que possuem essas labels devem ser controladas pelo deploy
+  selector:
+    # matchLabels:
+    #   app: second-app
+    #   tier: backend
+    matchExpressions:
+      - { key: app, operator: In, values: [second-app, first-app] }
+  # define como o pod deverá ser criado pelo deploy
+  template:
+    metadata:
+      labels:
+        app: second-app
+        tier: backend
+    spec:
+      containers:
+        - name: second-node
+          image: diegopimenta/kub-first-app:2
+          imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            periodSeconds: 10
+            initialDelaySeconds: 5
